@@ -1,3 +1,6 @@
+package mycustompackage;
+
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,12 +14,65 @@ public class Championship
     private int _compteur = 0;
     private ArrayList<Player> _playerList = new ArrayList<>();
 
-    public Championship()
-    {       
+    private Comparator<Player> _selectedComp;
+    
+
+    public Championship(ChoixRanking Echoice)
+    {   
+        choiceRanking(Echoice);
         createListOfPlayers();
         disputeMatch();
+        
         sortTab(_playerBordList);
         displayResult();
+    }
+
+    /**
+     * Enum 2 choice for method sort
+     */
+    public enum ChoixRanking
+    {
+        VICTORY, POINT;
+    }
+
+    private void choiceRanking( ChoixRanking choice)
+    {
+        switch(choice)
+        {
+            case VICTORY:  _selectedComp = new Comparator<Player>()
+            {
+                @Override
+                public int compare(Player A, Player B)
+                {
+                    if(A.getVictory() < B.getVictory())
+                        return 1;
+                    if(A.getVictory() > B.getVictory())
+                        return -1;
+                    if(A.getVictory() == B.getVictory())
+                        return 0;
+                    
+                    return 0; 
+                }           
+            };
+                    break;
+
+            case POINT: _selectedComp = new Comparator<Player>()
+            {
+                @Override
+                public int compare(Player A, Player B)
+                {
+                    if(A.getPoint() < B.getPoint())
+                        return 1;
+                    if(A.getPoint() > B.getPoint())
+                        return -1;
+                    if(A.getPoint() == B.getPoint())
+                        return 0;
+                    
+                    return 0; 
+                }           
+            };
+                    break;
+        }
     }
 
     /**
@@ -53,7 +109,8 @@ public class Championship
     
     /**
      * This method plays matches between players
-     * Call method attributPlayerToList().
+     * Call method calculateResultPlayerMatches
+     * Clear List and add List of Player win
      */
     private void disputeMatch()
     {
@@ -79,19 +136,23 @@ public class Championship
 
     private void removePlayerOfList()
     {
-        if(_playerList.size() == 2)
+        if(_playerList.size() < 2)
             return;
         
         _playerList.remove(0);
         _playerList.remove(0);
     }
 
+    /**
+     * This method need 2 argument type Player
+     * Call method attributPlayerToList
+     */
     private void calculateResultPlayerMatches(Player A, Player B)
     {
         int result;
 
         result = (int)(Math.random()*2);
-        //System.out.println(result);
+
         if(result == 0)
         {
             attributPlayerToList(A, B);
@@ -110,31 +171,17 @@ public class Championship
         win.setVictory(win.getVictory()+1);                         // add victory
         _playerWinMatches.add(win);                                    // add Player to temporary ArrayList
         _playerBordList.add(lose);
+        //_playerList.remove(lose);
     }
 
     /**
-     * 
+     * This methot need ArrayList and Comparator<Player> field
      * @param list
      */
     private void sortTab(ArrayList<Player> list)
     {
-        Collections.sort(list, new Comparator<Player>()
-        {
-            @Override
-            public int compare(Player A, Player B)
-            {
-                if(A.getVictory() < B.getVictory())
-                    return 1;
-                if(A.getVictory() > B.getVictory())
-                    return -1;
-                if(A.getVictory() == B.getVictory())
-                    return 0;
-                
-                return 0; 
-            }           
-        });
+        Collections.sort(list, _selectedComp);
     }
-
 
     /**
      * This method display result og Championship to console

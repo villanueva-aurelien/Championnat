@@ -1,3 +1,4 @@
+package mycustompackage;
 public class Player
 {
     private int _point = 0;
